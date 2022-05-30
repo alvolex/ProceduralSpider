@@ -18,12 +18,28 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-private:
+public:
+	/*Left Leg*/
 	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* LeftLeg;
 
 	UPROPERTY(EditAnywhere)
+	USceneComponent* LeftLegPos;
+
+	//Responsible for where we raycast
+	UPROPERTY(EditAnywhere)
+	USceneComponent* LeftLegTarget;	
+
+	/*Right Leg*/
+	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* RightLeg;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* RightLegPos;
+
+	//Responsible for where we raycast
+	UPROPERTY(EditAnywhere)
+	USceneComponent* RightLegTarget;
 	
 
 };

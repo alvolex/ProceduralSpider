@@ -19,6 +19,9 @@ private:
 	class ASpoopderTestCharacter* Character;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class AT4ProceduralLegPair* LegPairComponent;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FVector LegPosition;
 
 	UPROPERTY()
@@ -33,6 +36,9 @@ private:
 	UPROPERTY()
 	FVector LastValidPosition;
 
+	/*
+	 * For zig-zag
+	 */	
 	UPROPERTY()
 	bool bIsRightLeg = false;
 
