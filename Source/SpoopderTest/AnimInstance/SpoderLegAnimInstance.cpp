@@ -1,13 +1,21 @@
 #include "SpoderLegAnimInstance.h"
 
 #include "SpoopderTest/SpoopderTestCharacter.h"
-#include "SpoopderTest/ProceduralWalk/T4ProceduralLegPair.h"
+#include "SpoopderTest/ProceduralWalk/T4ProceduralLeg.h"
 
 void USpoderLegAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 	
-	LegPairComponent = Cast<AT4ProceduralLegPair>(TryGetPawnOwner());
+	LegComponent = Cast<AT4ProceduralLeg>(GetOwningActor());
+	
+	//Get leg start position
+	if (LegComponent == nullptr || LegComponent->LegPosComponent == nullptr) return;	
+	LegPosition = LegComponent->LegPosComponent->GetComponentLocation();
+
+	//Get leg target position
+	if (LegComponent->LegTargetComponent == nullptr) {return;}
+	TargetPosition = LegComponent->LegTargetComponent;
 
 	/*//Get leg start position
 	if (Character == nullptr || Character->LegPosComponent == nullptr) return;	
@@ -33,23 +41,20 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	if (TargetPosition == nullptr) {return;}*/
 
-	if (LegPairComponent == nullptr)
+	if (LegComponent == nullptr || TargetPosition == nullptr)
 	{
-		LegPairComponent = Cast<AT4ProceduralLegPair>(TryGetPawnOwner());
+		LegComponent = Cast<AT4ProceduralLeg>(GetOwningActor());
+		if (LegComponent != nullptr && LegComponent->LegTargetComponent == nullptr)
+		{
+			TargetPosition = LegComponent->LegTargetComponent;
+		}			
 		return;
 	}
 
-	if (bIsRightLeg)
+	if (GEngine)
 	{
-		TargetPosition = LegPairComponent->RightLegTarget;
-		LegPosition = LegPairComponent->RightLegPos->GetComponentLocation();
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("%s"), *TargetPosition->GetComponentLocation().ToString()));
 	}
-	else
-	{
-		TargetPosition = LegPairComponent->LeftLegTarget;
-		LegPosition = LegPairComponent->LeftLegPos->GetComponentLocation();
-	}
-	
 
 	FHitResult OutHit;
 	//Trace down from TargetPosition to find a point we can move towards
@@ -58,7 +63,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);
 		LastValidPosition = OutHit.ImpactPoint;
 
-		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) > Character->DistanceBeforeTakingNextStep)
+		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) > LegComponent->DistanceBeforeTakingNextStep)
 		{
 			StartLerpPosition = LegPosition;
 			//LegPosition = OutHit.ImpactPoint;
@@ -66,7 +71,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 	}
 	//If we don't get a location from our line trace then we use the last valid location instead
-	else if (FVector::Distance(LastValidPosition, TargetPosition->GetComponentLocation()) > Character->DistanceBeforeTakingNextStep)
+	else if (FVector::Distance(LastValidPosition, TargetPosition->GetComponentLocation()) > LegComponent->DistanceBeforeTakingNextStep)
 	{
 		OutHit.ImpactPoint = LastValidPosition;
 		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);

@@ -19,7 +19,7 @@ private:
 	class ASpoopderTestCharacter* Character;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class AT4ProceduralLegPair* LegPairComponent;
+	class AT4ProceduralLeg* LegComponent;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FVector LegPosition;

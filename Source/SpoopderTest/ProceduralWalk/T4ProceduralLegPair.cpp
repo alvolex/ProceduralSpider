@@ -12,23 +12,9 @@ AT4ProceduralLegPair::AT4ProceduralLegPair()
 	LeftLeg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LeftLeg"));
 	LeftLeg->SetupAttachment(RootComponent);
 
-	//Might need to be on the root component(?)
-	LeftLegPos = CreateDefaultSubobject<USceneComponent>(TEXT("LeftLegPos"));
-	LeftLegPos->SetupAttachment(LeftLeg);
-
-	LeftLegTarget = CreateDefaultSubobject<USceneComponent>(TEXT("LeftLegTarget"));
-	LeftLegTarget->SetupAttachment(LeftLeg);	
-
 	//Right leg
 	RightLeg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RightLeg"));
 	RightLeg->SetupAttachment(RootComponent);
-
-	//Might need to be on the root component(?)
-	RightLegPos = CreateDefaultSubobject<USceneComponent>(TEXT("RightLegPos"));
-	RightLegPos->SetupAttachment(RightLeg);
-
-	RightLegTarget = CreateDefaultSubobject<USceneComponent>(TEXT("RightLegTarget"));
-	RightLegTarget->SetupAttachment(RightLeg);	
 }
 
 void AT4ProceduralLegPair::BeginPlay()
@@ -43,8 +29,7 @@ void AT4ProceduralLegPair::BeginPlay()
 		{
 			RightLegAnimInstance->SetIsRightLeg();
 		}
-	}
-	
+	}	
 }
 
 void AT4ProceduralLegPair::Tick(float DeltaTime)
