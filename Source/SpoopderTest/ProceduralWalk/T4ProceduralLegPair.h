@@ -21,10 +21,10 @@ public:
 public:
 	/*Left Leg*/
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* LeftLeg;
+	class AT4ProceduralLeg* LeftLeg;
 
 	/*Right Leg*/
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* RightLeg;	
+	AT4ProceduralLeg* RightLeg;	
 
 };

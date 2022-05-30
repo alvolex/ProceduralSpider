@@ -11,7 +11,7 @@ class SPOOPDERTEST_API USpoderLegAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	virtual void NativeInitializeAnimation() override;
+	virtual void NativeInitializeAnimation() override;	
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;	
 
 private:	
@@ -40,11 +40,14 @@ private:
 	 * For zig-zag
 	 */	
 	UPROPERTY()
-	bool bIsRightLeg = false;
+	bool bIsGrounded = false;
 
 	UPROPERTY()
-	bool bIsGrounded = false;
+	bool bCanMove = false;
 
 public:
 	void SetIsRightLeg();
+
+private:
+	void SetIsGrounded();
 };

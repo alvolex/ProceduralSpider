@@ -16,30 +16,11 @@ void USpoderLegAnimInstance::NativeInitializeAnimation()
 	//Get leg target position
 	if (LegComponent->LegTargetComponent == nullptr) {return;}
 	TargetPosition = LegComponent->LegTargetComponent;
-
-	/*//Get leg start position
-	if (Character == nullptr || Character->LegPosComponent == nullptr) return;	
-	LegPosition = Character->LegPosComponent->GetComponentLocation();
-
-	//Get leg target position
-	if (Character->LegTargetComponent == nullptr) {return;}
-	TargetPosition = Character->LegTargetComponent;*/
 }
 
 void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	/*if (Character == nullptr || TargetPosition == nullptr)
-	{
-		Character = Cast<ASpoopderTestCharacter>(TryGetPawnOwner());
-		if (Character != nullptr && Character->LegTargetComponent == nullptr)
-		{
-			TargetPosition = Character->LegTargetComponent;
-		}		
-	}	
-	
-	if (TargetPosition == nullptr) {return;}*/
+	Super::NativeUpdateAnimation(DeltaSeconds);	
 
 	if (LegComponent == nullptr || TargetPosition == nullptr)
 	{
@@ -51,14 +32,22 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Yellow, FString::Printf(TEXT("%s"), *TargetPosition->GetComponentLocation().ToString()));
-	}
+	if (LegComponent->OppositeLeg && !LegComponent->OppositeLeg->bIsGrounded ) {return;}
 
 	FHitResult OutHit;
 	//Trace down from TargetPosition to find a point we can move towards
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, TargetPosition->GetComponentLocation(), TargetPosition->GetComponentLocation() + TargetPosition->GetUpVector() * -350.f, ECollisionChannel::ECC_Visibility))
+	auto StartLoc = TargetPosition->GetComponentLocation();
+	//Add some offsets to the front legs
+	if (LegComponent->bIsFrontLeg)
+	{
+		StartLoc -= LegComponent->GetActorForwardVector() * 15.f; //Close / Further away from body
+		if (LegComponent->GetParentActor())
+		{
+			StartLoc += LegComponent->GetParentActor()->GetActorForwardVector() * 120.f;
+		}		
+	}
+	
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLoc, StartLoc + TargetPosition->GetUpVector() * -350.f, ECollisionChannel::ECC_Visibility))
 	{
 		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);
 		LastValidPosition = OutHit.ImpactPoint;
@@ -81,26 +70,39 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//Lerp leg towards position, the animation blueprint then uses LegPosition to drive the IK
 	if (bIsLerpingPosition)
 	{
-		LegPosition = FMath::VInterpConstantTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 1800.f);
-		//LegPosition = FMath::VInterpTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 18.f);
+		bIsGrounded = false;
+		LegComponent->bIsGrounded = false;
+		
+		LegPosition = FMath::VInterpConstantTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 1200.f);
+		//LegPosition = FMath::VInterpTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 30.f);
 
-		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) < 35.f)
+		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) < 30.f)
 		{
 			bIsLerpingPosition = false;
+			
+			/*bIsGrounded = true;
+			LegComponent->bIsGrounded = true;*/
 
 			//Test code
-			bIsGrounded = true;
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USpoderLegAnimInstance::SetIsGrounded, 0.1f);
 		}		
 	}
 }
 
 void USpoderLegAnimInstance::SetIsRightLeg()
 {
-	bIsRightLeg = true;
 	bIsGrounded = true;
 }
 
+void USpoderLegAnimInstance::SetIsGrounded()
+{
+	bIsGrounded = true;
+	LegComponent->bIsGrounded = true;
+}
 
+
+//Old working code
 /*void USpoderLegAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

@@ -18,6 +18,7 @@ class ASpoopderTestCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 public:
 	ASpoopderTestCharacter();
+	virtual void BeginPlay() override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
@@ -34,6 +35,36 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float DistanceBeforeTakingNextStep = 200.f;
+
+	/*
+	 * Legs (Should probably move these badbois to a component)
+	 */
+	UPROPERTY()
+	class USceneComponent* LegsParent;
+	
+	/*UPROPERTY()
+	class AT4ProceduralLeg* FrontLeftLeg;
+
+	UPROPERTY(EditAnywhere)
+	class AT4ProceduralLeg* FrontRightLeg;
+
+	UPROPERTY(EditAnywhere)
+	class AT4ProceduralLeg* BackLeftLeg;
+
+	UPROPERTY(EditAnywhere)
+	class AT4ProceduralLeg* BackRightLeg;*/
+
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* FrontLeftLeg;
+
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* FrontRightLeg;
+
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* BackLeftLeg;
+
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* BackRightLeg;
 
 protected:
 

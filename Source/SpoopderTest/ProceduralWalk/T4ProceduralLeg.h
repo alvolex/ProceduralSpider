@@ -30,4 +30,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	float DistanceBeforeTakingNextStep = 180.f;
 
+	UPROPERTY(EditAnywhere)
+	AT4ProceduralLeg* OppositeLeg;
+
+	UPROPERTY()
+	bool bIsGrounded = false;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsFrontLeg = false;
+
 };

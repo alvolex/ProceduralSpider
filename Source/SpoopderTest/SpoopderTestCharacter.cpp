@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "ProceduralWalk/T4ProceduralLeg.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ASpoopderTestCharacter
@@ -53,12 +54,52 @@ ASpoopderTestCharacter::ASpoopderTestCharacter()
 	CubeBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeBody"));
 	CubeBody->SetupAttachment(RootComponent);
 
+	//Cursed leg shit
+	LegsParent = CreateDefaultSubobject<USceneComponent>(TEXT("LegsParent"));
+	LegsParent->SetupAttachment(RootComponent);
+
+	FrontLeftLeg = CreateDefaultSubobject<UChildActorComponent>(TEXT("FrontLeftLeg"));
+	FrontLeftLeg->SetupAttachment(LegsParent);
+
+	FrontRightLeg = CreateDefaultSubobject<UChildActorComponent>(TEXT("FrontRightLeg"));
+	FrontRightLeg->SetupAttachment(LegsParent);
+
+	BackLeftLeg = CreateDefaultSubobject<UChildActorComponent>(TEXT("BackLeftLEg"));
+	BackLeftLeg->SetupAttachment(LegsParent);
+
+	BackRightLeg = CreateDefaultSubobject<UChildActorComponent>(TEXT("BackRightLeg"));
+	BackRightLeg->SetupAttachment(LegsParent);	
+
 	//Should make a new component that 	
-	LegPosComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegComponentPosition"));
+	/*LegPosComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegComponentPosition"));
 	LegPosComponent->SetupAttachment(RootComponent);
 
 	LegTargetComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegTargetPosition"));
-	LegTargetComponent->SetupAttachment(CubeBody);
+	LegTargetComponent->SetupAttachment(CubeBody);*/
+}
+
+void ASpoopderTestCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Cuuuursed
+	//Todo all the spider stuff needs to be in its own component. Maybe make it more procedural as well so you can have X amount of legs..
+	auto FrontLeftLegCast = Cast<AT4ProceduralLeg>(FrontLeftLeg->GetChildActor());
+	auto FrontRightLegCast = Cast<AT4ProceduralLeg>(FrontRightLeg->GetChildActor());
+	auto BackLeftLegCast = Cast<AT4ProceduralLeg>(BackLeftLeg->GetChildActor());
+	auto BackRightLegCast = Cast<AT4ProceduralLeg>(BackRightLeg->GetChildActor());
+
+	if (FrontLeftLegCast && FrontRightLegCast && BackLeftLegCast && BackRightLegCast)
+	{
+		FrontLeftLegCast->OppositeLeg = FrontRightLegCast;
+		FrontRightLegCast->OppositeLeg = FrontLeftLegCast;
+		BackLeftLegCast->OppositeLeg = BackRightLegCast;
+		BackRightLegCast->OppositeLeg = BackLeftLegCast;
+
+		FrontLeftLegCast->bIsGrounded = true;
+		BackRightLegCast->bIsGrounded = true;		
+	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////
