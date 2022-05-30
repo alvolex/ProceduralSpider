@@ -40,10 +40,10 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//Add some offsets to the front legs
 	if (LegComponent->bIsFrontLeg)
 	{
-		StartLoc -= LegComponent->GetActorForwardVector() * 15.f; //Close / Further away from body
+		StartLoc += LegComponent->GetActorForwardVector() * LegComponent->FrontLegOffsetToBody; //Close / Further away from body
 		if (LegComponent->GetParentActor())
 		{
-			StartLoc += LegComponent->GetParentActor()->GetActorForwardVector() * 120.f;
+			StartLoc += LegComponent->GetParentActor()->GetActorForwardVector() * LegComponent->FrontLegOffsetForward;
 		}		
 	}
 	
@@ -73,10 +73,10 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsGrounded = false;
 		LegComponent->bIsGrounded = false;
 		
-		LegPosition = FMath::VInterpConstantTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 1200.f);
+		LegPosition = FMath::VInterpConstantTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, LegComponent->LegMovementInterpSpeed);
 		//LegPosition = FMath::VInterpTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 30.f);
 
-		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) < 30.f)
+		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) < LegComponent->CutoffDistanceBeforeBeingGrounded)
 		{
 			bIsLerpingPosition = false;
 			
@@ -85,7 +85,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 			//Test code
 			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USpoderLegAnimInstance::SetIsGrounded, 0.1f);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USpoderLegAnimInstance::SetIsGrounded, LegComponent->MinGroundedTime);
 		}		
 	}
 }

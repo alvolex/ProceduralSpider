@@ -25,18 +25,31 @@ public:
 	USceneComponent* LegPosComponent;
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* LegTargetComponent;
+	USceneComponent* LegTargetComponent;	
 
-	UPROPERTY(EditAnywhere)
-	float DistanceBeforeTakingNextStep = 180.f;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	AT4ProceduralLeg* OppositeLeg;
 
 	UPROPERTY()
 	bool bIsGrounded = false;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	bool bIsFrontLeg = false;
 
+	/*
+	 * Movement properties
+	 */
+	UPROPERTY(EditAnywhere)
+	float DistanceBeforeTakingNextStep = 180.f;
+	UPROPERTY(EditAnywhere)
+	float LegMovementInterpSpeed = 1400.f;
+	UPROPERTY(EditAnywhere)
+	float FrontLegOffsetToBody = 25.f;
+	UPROPERTY(EditAnywhere)
+	float FrontLegOffsetForward = 75.f;
+	UPROPERTY(EditAnywhere)/*Minimum amount of milliseconds we should wait until we are allowed to move a specific leg*/
+	float MinGroundedTime = 0.07f;
+	UPROPERTY(EditAnywhere) /*Max distance to target location before saying that we are close enough to be grounded*/
+	float CutoffDistanceBeforeBeingGrounded = 30.f;
+	
 };
