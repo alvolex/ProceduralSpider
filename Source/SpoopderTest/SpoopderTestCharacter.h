@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "ProceduralWalk/T4ProceduralLeg.h"
 #include "SpoopderTestCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -18,7 +19,9 @@ class ASpoopderTestCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 public:
 	ASpoopderTestCharacter();
+	void SetupSpiderLegs();
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
@@ -41,18 +44,6 @@ public:
 	 */
 	UPROPERTY()
 	class USceneComponent* LegsParent;
-	
-	/*UPROPERTY()
-	class AT4ProceduralLeg* FrontLeftLeg;
-
-	UPROPERTY(EditAnywhere)
-	class AT4ProceduralLeg* FrontRightLeg;
-
-	UPROPERTY(EditAnywhere)
-	class AT4ProceduralLeg* BackLeftLeg;
-
-	UPROPERTY(EditAnywhere)
-	class AT4ProceduralLeg* BackRightLeg;*/
 
 	UPROPERTY(EditAnywhere)
 	class UChildActorComponent* FrontLeftLeg;
@@ -65,6 +56,18 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UChildActorComponent* BackRightLeg;
+
+	UPROPERTY(EditAnywhere)/*Add child scene components for each leg you want to create*/
+	class USceneComponent* LegPositions;
+
+	UPROPERTY()
+	class AT4ProceduralLeg* FrontLeftLegCast;
+	UPROPERTY()
+	class AT4ProceduralLeg* FrontRightLegCast;
+	UPROPERTY()
+	class AT4ProceduralLeg* BackLeftLegCast;
+	UPROPERTY()
+	class AT4ProceduralLeg* BackRightLegCast;
 
 protected:
 

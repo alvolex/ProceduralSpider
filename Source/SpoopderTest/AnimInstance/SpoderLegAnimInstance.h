@@ -45,9 +45,6 @@ private:
 	UPROPERTY()
 	bool bCanMove = false;
 
-public:
-	void SetIsRightLeg();
-
 private:
 	void SetIsGrounded();
 };

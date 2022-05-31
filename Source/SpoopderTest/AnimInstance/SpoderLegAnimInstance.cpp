@@ -31,11 +31,8 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}			
 		return;
 	}
-
-	if (LegComponent->OppositeLeg && !LegComponent->OppositeLeg->bIsGrounded ) {return;}
-
-	FHitResult OutHit;
-	//Trace down from TargetPosition to find a point we can move towards
+	if (LegComponent->OppositeLeg && !LegComponent->OppositeLeg->bIsGrounded ) {return;}	
+	
 	auto StartLoc = TargetPosition->GetComponentLocation();
 	//Add some offsets to the front legs
 	if (LegComponent->bIsFrontLeg)
@@ -46,7 +43,9 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			StartLoc += LegComponent->GetParentActor()->GetActorForwardVector() * LegComponent->FrontLegOffsetForward;
 		}		
 	}
-	
+
+	//Trace down from TargetPosition to find a point we can move towards
+	FHitResult OutHit;
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLoc, StartLoc + TargetPosition->GetUpVector() * -350.f, ECollisionChannel::ECC_Visibility))
 	{
 		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);
@@ -78,27 +77,20 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		if (FVector::Distance(OutHit.ImpactPoint, LegPosition) < LegComponent->CutoffDistanceBeforeBeingGrounded)
 		{
-			bIsLerpingPosition = false;
-			
-			/*bIsGrounded = true;
-			LegComponent->bIsGrounded = true;*/
-
-			//Test code
+			bIsLerpingPosition = false; //Movement completed
 			FTimerHandle TimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &USpoderLegAnimInstance::SetIsGrounded, LegComponent->MinGroundedTime);
 		}		
 	}
 }
 
-void USpoderLegAnimInstance::SetIsRightLeg()
-{
-	bIsGrounded = true;
-}
-
 void USpoderLegAnimInstance::SetIsGrounded()
 {
 	bIsGrounded = true;
-	LegComponent->bIsGrounded = true;
+	if (LegComponent)
+	{
+		LegComponent->bIsGrounded = true;
+	}	
 }
 
 

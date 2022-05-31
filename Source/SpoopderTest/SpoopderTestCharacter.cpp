@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ProceduralWalk/T4ProceduralLeg.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -14,6 +15,8 @@
 
 ASpoopderTestCharacter::ASpoopderTestCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -45,7 +48,8 @@ ASpoopderTestCharacter::ASpoopderTestCharacter()
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -68,7 +72,10 @@ ASpoopderTestCharacter::ASpoopderTestCharacter()
 	BackLeftLeg->SetupAttachment(LegsParent);
 
 	BackRightLeg = CreateDefaultSubobject<UChildActorComponent>(TEXT("BackRightLeg"));
-	BackRightLeg->SetupAttachment(LegsParent);	
+	BackRightLeg->SetupAttachment(LegsParent);
+
+	LegPositions = CreateDefaultSubobject<USceneComponent>(TEXT("LegPositions"));
+	LegPositions->SetupAttachment(LegsParent);	
 
 	//Should make a new component that 	
 	/*LegPosComponent = CreateDefaultSubobject<USceneComponent>(TEXT("LegComponentPosition"));
@@ -82,12 +89,26 @@ void ASpoopderTestCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetupSpiderLegs();
+
+	//todo create a component that takes these positions and constucts legs for each position
+	TArray<USceneComponent*> ChildComponents;
+	LegPositions->GetChildrenComponents(true, ChildComponents);
+}
+
+void ASpoopderTestCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
+
+void ASpoopderTestCharacter::SetupSpiderLegs()
+{
 	//Cuuuursed
 	//Todo all the spider stuff needs to be in its own component. Maybe make it more procedural as well so you can have X amount of legs..
-	auto FrontLeftLegCast = Cast<AT4ProceduralLeg>(FrontLeftLeg->GetChildActor());
-	auto FrontRightLegCast = Cast<AT4ProceduralLeg>(FrontRightLeg->GetChildActor());
-	auto BackLeftLegCast = Cast<AT4ProceduralLeg>(BackLeftLeg->GetChildActor());
-	auto BackRightLegCast = Cast<AT4ProceduralLeg>(BackRightLeg->GetChildActor());
+	FrontLeftLegCast = Cast<AT4ProceduralLeg>(FrontLeftLeg->GetChildActor());
+	FrontRightLegCast = Cast<AT4ProceduralLeg>(FrontRightLeg->GetChildActor());
+	BackLeftLegCast = Cast<AT4ProceduralLeg>(BackLeftLeg->GetChildActor());
+	BackRightLegCast = Cast<AT4ProceduralLeg>(BackRightLeg->GetChildActor());
 
 	if (FrontLeftLegCast && FrontRightLegCast && BackLeftLegCast && BackRightLegCast)
 	{
@@ -97,9 +118,8 @@ void ASpoopderTestCharacter::BeginPlay()
 		BackRightLegCast->OppositeLeg = BackLeftLegCast;
 
 		FrontLeftLegCast->bIsGrounded = true;
-		BackRightLegCast->bIsGrounded = true;		
+		BackRightLegCast->bIsGrounded = true;
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,12 +186,12 @@ void ASpoopderTestCharacter::MoveForward(float Value)
 
 void ASpoopderTestCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
