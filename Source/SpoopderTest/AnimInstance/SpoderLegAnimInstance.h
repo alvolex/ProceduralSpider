@@ -31,7 +31,7 @@ private:
 	bool bIsLerpingPosition = false;
 
 	UPROPERTY()
-	FVector StartLerpPosition;
+	FVector MoveToPosition;
 
 	UPROPERTY()
 	FVector LastValidPosition;
@@ -44,6 +44,12 @@ private:
 
 	UPROPERTY()
 	bool bCanMove = false;
+
+	UPROPERTY()
+	bool bLegOnWall = false;
+
+	UPROPERTY()
+	float LerpProgress = 0.f;
 
 private:
 	void SetIsGrounded();
