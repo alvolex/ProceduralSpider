@@ -37,8 +37,11 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//Start location for our raycast
 	auto StartLoc = TargetPosition->GetComponentLocation();
 
-	//Add some offsets to the front legs || Offset needs to be off when we move the leg on a wall
-	if (LegComponent->bIsFrontLeg && !bLegOnWall)
+	/*
+	 *Add some offsets to the front legs || Offset needs to be off when we move the leg on a wall
+	 *  WE MIGHT NEED TO MOVE THIS BELOW THE WALL CHECK
+	 */
+	if (LegComponent->bIsFrontLeg /*&& !bLegOnWall*/)
 	{
 		StartLoc += LegComponent->GetActorForwardVector() * LegComponent->FrontLegOffsetToBody; //Close / Further away from body
 		if (LegComponent->GetParentActor())
@@ -48,9 +51,11 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	
 	//todo Add an overlap sphere to each leg, only raycast if the legs are overlapping with a wall or something idk fam
-	//This dirty code is for checking if we need to move the leg up a wall.. This is a lot more cursed than my brain told me 10sec ago
+	/*
+	 *This dirty code is for checking if we need to move the leg up a wall.. This is a lot more cursed than my brain told me 10sec ago
+	 */
 	FHitResult OutHit;	
-	if (LegComponent && LegComponent->GetParentActor())
+	if (LegComponent && LegComponent->GetParentActor() && !bIsLerpingPosition)
 	{
 		auto BodyPos = LegComponent->GetParentActor()->GetActorLocation();
 		auto LegForward = LegComponent->GetActorForwardVector();
@@ -59,6 +64,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		//Cuuuursed offset
 		if (LegComponent->bIsFrontLeg)
 		{
+			//Todo fix this potatoness
 			LineEnd = BodyPos + LegComponent->GetParentActor()->GetActorForwardVector() * 250.f + LegForward * 500.f;
 		}
 
@@ -69,7 +75,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);	
 
 			//Check if we're close enough to the wall
-			if (FVector::Distance(BodyPos, OutHit.ImpactPoint) < 200.f)
+			if (FVector::Distance(BodyPos, OutHit.ImpactPoint) < 220.f)
 			{
 				bLegOnWall = true;
 			}
@@ -79,7 +85,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			}
 
 			//Move leg on the wall if we have moved X units from the last step
-			if (bLegOnWall && FVector::Distance(LegPosition, OutHit.ImpactPoint) > 150.f)
+			if (bLegOnWall && FVector::Distance(LegPosition, OutHit.ImpactPoint) > 160.f)
 			{
 				MoveToPosition = OutHit.ImpactPoint;
 				bIsLerpingPosition = true;
@@ -89,33 +95,44 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			bLegOnWall = false;
 		}
-	}
+	}	
 	
-	//Trace down from TargetPosition to find a point we can move towards	
+	/*
+	 *Trace down from TargetPosition to find a point we can move towards
+	 */
 	if (/*!bLegOnWall && */GetWorld()->LineTraceSingleByChannel(OutHit, StartLoc, StartLoc + TargetPosition->GetUpVector() * -350.f, ECollisionChannel::ECC_Visibility))
 	{
-		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);
-		LastValidPosition = OutHit.ImpactPoint;
+		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Green);
 
-		if (bLegOnWall && MoveToPosition.Z > OutHit.ImpactPoint.Z)
+		//Move to "Green" position if there is both a wall & somewhere to put your leg
+		if (bLegOnWall && MoveToPosition.Z < OutHit.ImpactPoint.Z)
 		{
-
+			//todo figure out if this works as intended :^)
+			if (FVector::Distance(OutHit.ImpactPoint, LegPosition) > LegComponent->DistanceBeforeTakingNextStep/2)
+			{
+				MoveToPosition = OutHit.ImpactPoint;
+				bIsLerpingPosition = true;
+			}			
 		}		
-		else if (FVector::Distance(OutHit.ImpactPoint, LegPosition) > LegComponent->DistanceBeforeTakingNextStep)
+		else if (!bLegOnWall && FVector::Distance(OutHit.ImpactPoint, LegPosition) > LegComponent->DistanceBeforeTakingNextStep)
 		{
 			MoveToPosition = OutHit.ImpactPoint;
 			bIsLerpingPosition = true;
 		}
+		
+		LastValidPosition = OutHit.ImpactPoint;
 	}
 	//If we don't get a location from our line trace then we use the last valid location instead
 	else if (!bLegOnWall &&FVector::Distance(LastValidPosition, TargetPosition->GetComponentLocation()) > LegComponent->DistanceBeforeTakingNextStep)
 	{
 		MoveToPosition = LastValidPosition;
-		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Cyan);
+		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Red);
 		bIsLerpingPosition = true;
 	}
 	
-	//Lerp leg towards position, the animation blueprint then uses LegPosition to drive the IK
+	/*
+	 *Lerp leg towards position, the animation blueprint then uses LegPosition to drive the IK
+	 */
 	if (bIsLerpingPosition)
 	{
 		bIsGrounded = false;

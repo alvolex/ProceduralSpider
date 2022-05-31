@@ -31,7 +31,7 @@ private:
 	bool bIsLerpingPosition = false;
 
 	UPROPERTY()
-	FVector MoveToPosition;
+	FVector MoveToPosition;	
 
 	UPROPERTY()
 	FVector LastValidPosition;
