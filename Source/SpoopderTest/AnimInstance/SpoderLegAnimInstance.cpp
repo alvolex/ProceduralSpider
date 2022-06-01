@@ -100,7 +100,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	/*
 	 *Trace down from TargetPosition to find a point we can move towards
 	 */
-	if (/*!bLegOnWall && */GetWorld()->LineTraceSingleByChannel(OutHit, StartLoc, StartLoc + TargetPosition->GetUpVector() * -350.f, ECollisionChannel::ECC_Visibility))
+	if (/*!bLegOnWall && */GetWorld()->LineTraceSingleByChannel(OutHit, StartLoc, StartLoc + TargetPosition->GetUpVector() * -450.f, ECollisionChannel::ECC_Visibility))
 	{
 		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Green);
 
