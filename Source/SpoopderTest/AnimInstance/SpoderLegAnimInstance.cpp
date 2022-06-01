@@ -122,13 +122,15 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		LastValidPosition = OutHit.ImpactPoint;
 	}
+	
 	//If we don't get a location from our line trace then we use the last valid location instead
-	else if (!bLegOnWall &&FVector::Distance(LastValidPosition, TargetPosition->GetComponentLocation()) > LegComponent->DistanceBeforeTakingNextStep)
+	if (!OutHit.bBlockingHit && !bLegOnWall && FVector::Distance(LastValidPosition, TargetPosition->GetComponentLocation()) > LegComponent->DistanceBeforeTakingNextStep)
 	{
-		MoveToPosition = LastValidPosition;
-		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 6.f, 6, FColor::Red);
+		MoveToPosition = LastValidPosition;		
 		bIsLerpingPosition = true;
 	}
+
+	DrawDebugSphere(GetWorld(), LastValidPosition, 6.f, 6, FColor::Red);
 	
 	/*
 	 *Lerp leg towards position, the animation blueprint then uses LegPosition to drive the IK
