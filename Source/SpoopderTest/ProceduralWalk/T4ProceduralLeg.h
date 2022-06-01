@@ -51,7 +51,6 @@ public:
 	float MinGroundedTime = 0.07f;
 	UPROPERTY(EditAnywhere) /*Max distance to target location before saying that we are close enough to be grounded*/
 	float CutoffDistanceBeforeBeingGrounded = 30.f;
-
 	UPROPERTY(EditAnywhere)
 	class UCurveFloat* LegZCurve;
 };

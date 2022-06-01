@@ -33,7 +33,7 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 	if (LegComponent->OppositeLeg && !LegComponent->OppositeLeg->bIsGrounded ) {return;}	
-
+	
 	//Start location for our raycast
 	auto StartLoc = TargetPosition->GetComponentLocation();
 
@@ -138,17 +138,17 @@ void USpoderLegAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsGrounded = false;
 		LegComponent->bIsGrounded = false;
 		
-		LegPosition = FMath::VInterpConstantTo(LegPosition, MoveToPosition, DeltaSeconds, LegComponent->LegMovementInterpSpeed);
+		//LegPosition = FMath::VInterpConstantTo(LegPosition, MoveToPosition, DeltaSeconds, LegComponent->LegMovementInterpSpeed);
 		//LegPosition = FMath::VInterpTo(LegPosition, OutHit.ImpactPoint, DeltaSeconds, 30.f);
 
-		/*LerpProgress += DeltaSeconds * 3.f;
+		LerpProgress += DeltaSeconds * 2.f;
 		auto TempPos = FMath::Lerp(LegPosition, MoveToPosition, LerpProgress);
 
 		if (LegComponent->LegZCurve)
 		{
 			auto LegZ = LegComponent->LegZCurve->GetFloatValue(LerpProgress);
 			LegPosition = TempPos + FVector(0,0,LegZ);
-		}	*/	
+		}		
 
 		if (FVector::Distance(MoveToPosition, LegPosition) < LegComponent->CutoffDistanceBeforeBeingGrounded)
 		{
